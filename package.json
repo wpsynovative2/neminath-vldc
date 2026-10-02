@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "build": "next build --webpack",
+    "lint": "eslint",
+    "preview": "npm run build && php -S localhost:8080 -t out",
+    "build:zip": "npm run build && node scripts/zip-out.mjs"
   },
   "dependencies": {
     "lenis": "^1.3.26",

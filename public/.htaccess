@@ -1,0 +1,46 @@
+# Apache config for the static export on Hostinger (copied to public_html by `npm run build`).
+
+Options -Indexes
+DirectoryIndex index.html index.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # Old WordPress URLs → home page
+  RewriteRule ^(wp-admin|wp-content|wp-includes|wp-login\.php|xmlrpc\.php) / [L,R=301]
+</IfModule>
+
+ErrorDocument 404 /404.html
+
+# Hide dotfiles (except .well-known for SSL validation)
+<IfModule mod_rewrite.c>
+  RewriteRule "(^|/)\.(?!well-known)" - [F]
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript application/json application/xml image/svg+xml
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # Next.js build assets are content-hashed — cache for a year.
+  <If "%{REQUEST_URI} =~ m#^/_next/static/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  # Images, fonts and animations — cache for 30 days.
+  <FilesMatch "\.(webp|png|jpe?g|svg|ico|woff2?|json)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  # HTML always revalidates so new deploys show up immediately.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
