@@ -1,4 +1,4 @@
-// Shared by the form (client) and the /api/enquiry route (server).
+// Form validation rules — mirrored in google-apps-script/Code.gs.
 
 export type EnquiryInput = {
   name: string;

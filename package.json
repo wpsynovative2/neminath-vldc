@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "lint": "eslint",
-    "preview": "npm run build && php -S localhost:8080 -t out",
+    "preview": "npm run build && npx serve out -l 8080",
     "build:zip": "npm run build && node scripts/zip-out.mjs"
   },
   "dependencies": {

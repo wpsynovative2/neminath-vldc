@@ -1,7 +1,7 @@
 # Apache config for the static export on Hostinger (copied to public_html by `npm run build`).
 
 Options -Indexes
-DirectoryIndex index.html index.php
+DirectoryIndex index.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On

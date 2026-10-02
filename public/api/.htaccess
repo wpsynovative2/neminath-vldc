@@ -1,7 +1,0 @@
-# Only enquiry.php is reachable; the config file (if stored here) and anything else is blocked.
-<Files "*">
-  Require all denied
-</Files>
-<Files "enquiry.php">
-  Require all granted
-</Files>

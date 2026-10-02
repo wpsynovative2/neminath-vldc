@@ -8,8 +8,8 @@ import { enquiryForm } from "@/data/forms";
 import { getRecaptchaToken, loadRecaptcha } from "@/lib/recaptcha";
 import { validateEnquiry, type EnquiryErrors, type EnquiryInput } from "@/lib/enquiry";
 
-// PHP endpoint on Hostinger (public/api/enquiry.php); override for other hosts.
-const ENQUIRY_ENDPOINT = process.env.NEXT_PUBLIC_ENQUIRY_ENDPOINT || "/api/enquiry.php";
+// Google Apps Script web app (google-apps-script/Code.gs) — it verifies reCAPTCHA and saves to the Sheet.
+const GOOGLE_SCRIPT_URL = process.env.NEXT_PUBLIC_GOOGLE_SCRIPT_URL ?? "";
 
 type EnquiryFormProps = {
   /** popup = enquiry popup, section = home contact section, blog = blog sidebar (single column). */
@@ -64,11 +64,22 @@ export default function EnquiryForm({ variant, className = "" }: EnquiryFormProp
     setStatus("submitting");
     setMessage("");
     try {
+      if (!GOOGLE_SCRIPT_URL) throw new Error("NEXT_PUBLIC_GOOGLE_SCRIPT_URL is not set.");
       const token = await getRecaptchaToken();
-      const response = await fetch(ENQUIRY_ENDPOINT, {
+      // Form-encoded body keeps this a "simple" request, so Apps Script needs no CORS preflight.
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...input, token }),
+        body: new URLSearchParams({
+          name: input.name,
+          phone: input.phone,
+          email: input.email,
+          requirement: input.requirement,
+          consent: input.consent ? "Yes" : "No",
+          source: input.source,
+          pageUrl: input.pageUrl,
+          submittedAt: input.submittedAt,
+          token,
+        }),
       });
       const result = (await response.json().catch(() => ({}))) as { ok?: boolean; error?: string };
       if (!response.ok || !result.ok) throw new Error(result.error || enquiryForm.errors.generic);

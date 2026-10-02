@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 // Static export for Hostinger shared hosting: `npm run build` writes the site to `out/`,
-// which is uploaded to public_html. The enquiry form posts to public/api/enquiry.php.
+// which is uploaded to public_html. The enquiry form posts directly to Google Apps Script.
 const nextConfig: NextConfig = {
   output: "export",
   // Every page becomes folder/index.html, which Apache serves without rewrite rules.

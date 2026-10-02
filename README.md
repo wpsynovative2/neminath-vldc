@@ -1,53 +1,48 @@
 # Neminath VLDC
 
 Next.js (App Router) + TypeScript + Tailwind CSS rebuild of [neminathvldc.com](https://neminathvldc.com/),
-exported as a static site for **Hostinger shared hosting** (Business plan). The enquiry form posts to a
-small PHP endpoint that verifies reCAPTCHA v3 and forwards leads to Google Sheets via Apps Script.
+exported as a static site for **Hostinger**. The enquiry form posts directly to a Google Apps Script
+web app, which verifies reCAPTCHA v3 and saves the lead to a Google Sheet. No server code is needed.
 
 ## Local development
 
 ```bash
 npm install
-cp .env.example .env.local
-npm run dev        # design work — the form endpoint is PHP, so submissions don't work here
-npm run preview    # builds and serves out/ with PHP on http://localhost:8080 (form works)
+cp .env.example .env.local   # fill in NEXT_PUBLIC_GOOGLE_SCRIPT_URL
+npm run dev
 ```
 
-`npm run preview` needs PHP 8.1+ with the curl and mbstring extensions, and a `neminath-config.php`
-in the project root (see below).
+The form works on `npm run dev` too. Add `localhost` to the reCAPTCHA key's domains to test it.
+
+## Google Sheet + Apps Script setup
+
+1. Create a Google Sheet → **Extensions → Apps Script**, paste `google-apps-script/Code.gs`.
+2. **Project Settings → Script Properties** → add `RECAPTCHA_SECRET` (your reCAPTCHA v3 secret key).
+   Optional: `RECAPTCHA_MIN_SCORE` (default `0.5`) and `ALLOWED_HOSTNAMES`
+   (e.g. `neminathvldc.com,www.neminathvldc.com,localhost`).
+3. **Deploy → New deployment → Web app** — Execute as **Me**, access **Anyone**.
+4. Put the web app URL (ends in `/exec`) in `NEXT_PUBLIC_GOOGLE_SCRIPT_URL`.
+
+After changing `Code.gs`, redeploy via **Manage deployments → Edit → New version** to keep the same URL.
+Each enquiry is appended to an `Enquiries` sheet with the form source (`popup`, `contact-section`, `blog`),
+page URL and reCAPTCHA score.
 
 ## Deploy to Hostinger
 
-1. **Build:** `npm run build:zip` → creates `out/` and `hostinger-upload.zip`.
-2. **Upload:** hPanel → Files → File Manager → `public_html` → upload `hostinger-upload.zip` → Extract.
-   (Remove the old WordPress files first, or back them up.)
-3. **Server config:** copy `hostinger/neminath-config.example.php` to `neminath-config.php`, fill in the
-   reCAPTCHA secret and Apps Script URL, and upload it to the folder **above** `public_html`
-   (e.g. `domains/neminathvldc.com/neminath-config.php`) so it can never be downloaded.
-4. **PHP version:** hPanel → Advanced → PHP Configuration → PHP 8.1 or newer.
-5. **reCAPTCHA:** make sure your domain is listed for the site key in the reCAPTCHA admin console.
-
-To redeploy, run `npm run build:zip` again and re-upload; the config file above `public_html` stays put.
+- **Git build:** in the build settings, add environment variables `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` and
+  `NEXT_PUBLIC_GOOGLE_SCRIPT_URL` (they are baked in at build time). Build command: `npm run build`,
+  output directory: `out`.
+- **Manual upload:** `npm run build:zip`, then upload `hostinger-upload.zip` to `public_html` and extract.
 
 ## Configuration
 
 | Where | Setting | Purpose |
 | --- | --- | --- |
-| `.env.local` (build time) | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | reCAPTCHA v3 site key (pre-filled with the live key) |
-| `.env.local` (build time) | `NEXT_PUBLIC_ENQUIRY_ENDPOINT` | Optional, defaults to `/api/enquiry.php` |
-| `neminath-config.php` (server) | `recaptcha_secret_key` | Required — submissions are rejected without it |
-| `neminath-config.php` (server) | `recaptcha_min_score` | Minimum score (default `0.5`) |
-| `neminath-config.php` (server) | `google_script_url` | Apps Script web app URL |
-| `neminath-config.php` (server) | `allowed_origins` | Domains allowed to post the form |
-
-## Google Apps Script setup
-
-1. Create a Google Sheet → **Extensions → Apps Script**, paste `google-apps-script/Code.gs`.
-2. **Deploy → New deployment → Web app** — Execute as **Me**, access **Anyone**.
-3. Put the web app URL in `google_script_url`.
-
-Each enquiry is appended to an `Enquiries` sheet with the form source (`popup`, `contact-section`, `blog`)
-and page URL.
+| `.env.local` / Hostinger build env | `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | reCAPTCHA v3 site key (public) |
+| `.env.local` / Hostinger build env | `NEXT_PUBLIC_GOOGLE_SCRIPT_URL` | Apps Script web app URL (public) |
+| Apps Script → Script Properties | `RECAPTCHA_SECRET` | reCAPTCHA secret key — required |
+| Apps Script → Script Properties | `RECAPTCHA_MIN_SCORE` | Minimum score (default `0.5`) |
+| Apps Script → Script Properties | `ALLOWED_HOSTNAMES` | Only accept tokens from these sites |
 
 ## Content
 

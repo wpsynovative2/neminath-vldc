@@ -41,6 +41,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Hostinger server config (secrets)
-neminath-config.php
 hostinger-upload.zip
