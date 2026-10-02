@@ -11,6 +11,8 @@ export const site = {
   ogImage: "/images/og-image.jpg",
   logoHeader: "/images/logo/logo-header.png",
   logoFooter: "/images/logo/logo-footer.png",
+  // Google Tag Manager container — leave empty to disable.
+  gtmId: "GTM-5NXTQMZN",
 };
 
 export const navLinks = [
