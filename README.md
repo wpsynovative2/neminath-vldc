@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Neminath VLDC
 
-## Getting Started
+Next.js (App Router) + TypeScript + Tailwind CSS rebuild of [neminathvldc.com](https://neminathvldc.com/).
+Enquiries are protected by reCAPTCHA v3 and delivered to a Google Sheet through Google Apps Script.
 
-First, run the development server:
+## Getting started
 
 ```bash
+npm install
+cp .env.example .env.local   # then fill in the values
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Name | Where | Purpose |
+| --- | --- | --- |
+| `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` | browser | reCAPTCHA v3 site key (pre-filled with the live site's key) |
+| `RECAPTCHA_SECRET_KEY` | server | Secret for the same key — required in production |
+| `RECAPTCHA_MIN_SCORE` | server | Minimum score to accept (default `0.5`) |
+| `GOOGLE_SCRIPT_URL` | server | Apps Script web app URL that stores enquiries |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To test reCAPTCHA locally, add `localhost` to the key's domains in the
+[reCAPTCHA admin console](https://www.google.com/recaptcha/admin). In development,
+if `RECAPTCHA_SECRET_KEY` is empty the token check is skipped; in production it fails closed.
 
-## Learn More
+## Google Apps Script setup
 
-To learn more about Next.js, take a look at the following resources:
+1. Create a Google Sheet → **Extensions → Apps Script**.
+2. Paste `google-apps-script/Code.gs`.
+3. **Deploy → New deployment → Web app** — Execute as **Me**, access **Anyone**.
+4. Put the web app URL in `GOOGLE_SCRIPT_URL`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Each enquiry is appended to an `Enquiries` sheet (created automatically with headers).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Form flow
 
-## Deploy on Vercel
+`EnquiryForm` (popup + contact section) → reCAPTCHA v3 token → `POST /api/enquiry`
+→ server validates fields and verifies the token → forwards to Apps Script → redirect to `/thank-you`.
+Only **name** and **mobile number** are required.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Project structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/            pages, layout, /api/enquiry route, /thank-you
+components/     header, footer, carousel, popups, form, sections/
+data/           all site copy (site.ts, home.ts, footer.ts, forms.ts)
+lib/            shared validation + reCAPTCHA loader
+public/images/  logo, hero, overview, advantages, master-plan, connectivity, gallery, backgrounds
+public/lottie_icons/  gear animations
+google-apps-script/   Code.gs for the Sheet receiver
+```
+
+The Specifications and Investment Returns sections exist but are hidden, as on the live site.
+Set `visible: true` in `data/home.ts` to show them.

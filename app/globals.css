@@ -1,26 +1,265 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-maroon: #6d1412;
+  --color-gold: #ba7c1b;
+  --color-gold-light: #d9ab32;
+  --color-gold-faded: #ba7c1b70;
+  --color-cream: #fff3e1;
+  --color-ink: #4b4b4b;
+  --color-muted: #7a7a7a;
+  --color-slate: #54595f;
+  --color-link: #cc3366;
+
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1025px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-system:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+  --font-roboto: var(--ff-roboto), sans-serif;
+  --font-roboto-slab: var(--ff-roboto-slab), sans-serif;
+  --font-roboto-flex: var(--ff-roboto-flex), sans-serif;
+  --font-convergence: var(--ff-convergence), sans-serif;
+  --font-montaga: var(--ff-montaga), sans-serif;
+  --font-jost: var(--ff-jost), sans-serif;
+  --font-rubik: var(--ff-rubik), sans-serif;
+  --font-poppins: var(--ff-poppins), sans-serif;
+  --font-cinzel: var(--ff-cinzel), sans-serif;
+  --font-dm-sans: var(--ff-dm-sans), sans-serif;
+  --font-arial: Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Base styles from the Hello Elementor reset. Kept in the base layer so utilities win. */
+@layer base {
+  html {
+    overflow-x: hidden;
+    line-height: 1.15;
+  }
+
+  body {
+    margin: 0;
+    background-color: #fff;
+    color: #333;
+    font-family: var(--font-system);
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    line-height: 1.5;
+  }
+
+  input::placeholder {
+    color: #757575;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ------------------------------------------------------------------ */
+/* Lenis smooth scroll                                                 */
+/* ------------------------------------------------------------------ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ */
+/* "Send" call-to-action button (paper plane flies off on hover)       */
+/* ------------------------------------------------------------------ */
+@keyframes fly-1 {
+  from {
+    transform: translateY(0.1em);
+  }
+  to {
+    transform: translateY(-0.1em);
+  }
+}
+
+.fly-btn {
+  font-family: inherit;
+  font-size: 20px;
+  line-height: 1.5;
+  background: #6d1412;
+  color: white;
+  padding: 0.5em 1em 0.5em 0.9em;
+  display: flex;
+  align-items: center;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all 0.2s;
+  cursor: pointer;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.fly-btn span {
+  display: block;
+  margin-left: 0.3em;
+  transition: all 0.3s ease-in-out;
+}
+.fly-btn svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  transform-origin: center center;
+  transition: transform 0.3s ease-in-out;
+}
+.fly-btn:hover .svg-wrapper {
+  animation: fly-1 0.6s ease-in-out infinite alternate;
+}
+.fly-btn:hover svg {
+  transform: translateX(var(--fly-icon, 5em)) rotate(45deg) scale(1.1);
+}
+.fly-btn:hover span {
+  transform: translateX(var(--fly-text, 12em));
+}
+.fly-btn:active {
+  transform: scale(0.95);
+}
+@media only screen and (max-width: 480px) and (orientation: portrait) {
+  .fly-btn {
+    font-size: 15px;
+    border-radius: 5px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Header "Enquiry now" button                                         */
+/* ------------------------------------------------------------------ */
+.enquiry-btn {
+  cursor: pointer;
+  position: relative;
+  padding: 10px 24px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #d9ab32;
+  border: 2px solid #d9ab32;
+  border-radius: 10px;
+  background-color: transparent;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+  box-shadow:
+    rgba(14, 30, 37, 0.12) 0px 2px 4px 0px,
+    rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+}
+.enquiry-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 60px;
+  height: 50px;
+  border-radius: inherit;
+  scale: 0;
+  z-index: -1;
+  background-color: #6d1412;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.enquiry-btn:hover::before {
+  scale: 3;
+}
+.enquiry-btn:hover {
+  color: white;
+  scale: 1.1;
+  box-shadow: 0 0px 20px rgba(193, 163, 98, 0.4);
+  border-color: white;
+}
+.enquiry-btn:active {
+  scale: 1;
+}
+
+/* Heading underline used in the popups */
+.popup-heading::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 80%;
+  height: 0%;
+  border-radius: 100px;
+  border: 0 solid #6d1412;
+  border-bottom-width: 3px;
+}
+
+/* Advantages artwork shapes */
+.clip-triangle {
+  clip-path: polygon(0 50%, 100% 100%, 100% 0);
+}
+.clip-triangle-outline {
+  clip-path: polygon(0 50%, 100% 100%, 98% 96%, 5% 50%, 98% 3%, 98% 96%, 100% 100%, 100% 0);
+}
+.clip-hexagon-short {
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+.clip-hexagon-tall {
+  clip-path: polygon(50% 0, 100% 12%, 100% 88%, 50% 100%, 0 88%, 0 12%);
+}
+
+/* Footer credit link: underline wave slides on hover */
+.wave-link svg {
+  position: absolute;
+  top: -3px;
+  left: 0;
+  width: 300%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1px;
+  pointer-events: none;
+  transition: transform 0.7s;
+  transition-timing-function: cubic-bezier(0, 0.25, 0.5, 1);
+}
+.wave-link:hover svg {
+  transform: translate3d(-66.6%, 0, 0);
+}
+
+/* Elementor "bounceInLeft" entrance used on the stat cards */
+@keyframes bounceInLeft {
+  0%,
+  60%,
+  75%,
+  90%,
+  to {
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  0% {
+    opacity: 0;
+    transform: translate3d(-3000px, 0, 0);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(25px, 0, 0);
+  }
+  75% {
+    transform: translate3d(-10px, 0, 0);
+  }
+  90% {
+    transform: translate3d(5px, 0, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+.animate-bounce-in-left {
+  animation: bounceInLeft 1.25s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bounce-in-left {
+    animation: none;
+  }
 }
